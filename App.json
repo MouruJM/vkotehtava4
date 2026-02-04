@@ -1,0 +1,65 @@
+import { useEffect, useState } from 'react';
+import { View, TextInput, Button, FlatList } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import TodoItem from './TodoItem';
+
+export default function App() {
+  const [task, setTask] = useState('');
+  const [todos, setTodos] = useState([]);
+
+  useEffect(() => {
+    loadTodos();
+  }, []);
+
+  const loadTodos = async () => {
+    const data = await AsyncStorage.getItem('todos');
+    if (data) {
+      setTodos(JSON.parse(data));
+    }
+  };
+
+  const saveTodos = async (newTodos) => {
+    setTodos(newTodos);
+    await AsyncStorage.setItem('todos', JSON.stringify(newTodos));
+  };
+
+  const addTodo = () => {
+    if (!task.trim()) return;
+
+    const newTodo = {
+      id: Date.now().toString(),
+      text: task,
+      done: false,
+    };
+
+    saveTodos([...todos, newTodo]);
+    setTask('');
+  };
+
+  const toggleTodo = (id) => {
+    const updated = todos.map(todo =>
+      todo.id === id ? { ...todo, done: !todo.done } : todo
+    );
+    saveTodos(updated);
+  };
+
+  return (
+    <View style={{ padding: 20 }}>
+      <TextInput
+        placeholder="Enter task"
+        value={task}
+        onChangeText={setTask}
+      />
+      <Button title="Save" onPress={addTodo} />
+
+      <FlatList
+        data={todos}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <TodoItem item={item} onPress={toggleTodo} />
+        )}
+      />
+    </View>
+  );
+}
+

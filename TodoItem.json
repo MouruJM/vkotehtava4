@@ -1,0 +1,22 @@
+import { Text, Pressable, StyleSheet } from 'react-native';
+
+export default function TodoItem({ item, onPress }) {
+  return (
+    <Pressable onPress={() => onPress(item.id)}>
+      <Text style={[styles.text, item.done && styles.done]}>
+        {item.text}
+      </Text>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  text: {
+    fontSize: 18,
+    paddingVertical: 8,
+  },
+  done: {
+    textDecorationLine: 'line-through',
+    color: 'gray',
+  },
+});
